@@ -499,14 +499,8 @@ void playGame() {
             }
         }
         
-        if (is_paused) {
-            draw_text_centered("[ PAUSED ]", SCREEN_HEIGHT / 2, FONT_SIZE_LARGE, COLOR_YELLOW);
-            draw_text_centered("[ ESC: Tiếp tục  |  Q: Thoát ]", SCREEN_HEIGHT / 2 + 40, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
-            present_screen();
-            SDL_Delay(FRAME_DELAY);
-            continue;
-        }
-
+        if (!is_paused) {
+        
         // Check game over
         if ((lives <= 0 || is_time_up(&main_timer)) && !debug_mode) {
             net_score = score;
@@ -654,6 +648,8 @@ void playGame() {
                 shields[i].x = 80 + rand() % (SCREEN_WIDTH - 160);
             }
         }
+        
+        } // End if (!is_paused)
 
         // === RENDER ===
         clear_screen();
@@ -710,6 +706,12 @@ void playGame() {
         // Debug indicator
         if (debug_mode) {
             draw_text("[DEBUG MODE]", 10, SCREEN_HEIGHT - 25, FONT_SIZE_SMALL, COLOR_RED);
+        }
+
+        if (is_paused) {
+            draw_overlay();
+            draw_text_centered("[ PAUSED ]", SCREEN_HEIGHT / 2, FONT_SIZE_LARGE, COLOR_YELLOW);
+            draw_text_centered("[ ESC: Tiếp tục  |  Q: Thoát ]", SCREEN_HEIGHT / 2 + 40, FONT_SIZE_SMALL, COLOR_WHITE);
         }
 
         present_screen();
