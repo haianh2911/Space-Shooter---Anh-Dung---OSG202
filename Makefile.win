@@ -1,0 +1,26 @@
+# Makefile dành riêng cho Windows (MSYS2 / MinGW-w64)
+TARGET = space_shooter.exe
+
+CC = gcc
+
+SDL_CFLAGS = $(shell sdl2-config --cflags)
+SDL_LIBS = $(shell sdl2-config --libs)
+
+FT_CFLAGS = $(shell pkg-config --cflags freetype2)
+FT_LIBS = $(shell pkg-config --libs freetype2)
+
+# Tổng hợp CFLAGS và LIBS
+CFLAGS = -Wall $(SDL_CFLAGS) $(FT_CFLAGS)
+# -mwindows để ẩn cửa sổ console (Cmd) khi chạy game
+LIBS = $(SDL_LIBS) $(FT_LIBS) -lm -mwindows
+
+SRCS = main.c utils.c data.c admin.c player.c story.c ui.c timer.c network.c graphics.c
+
+all: $(TARGET)
+
+$(TARGET): $(SRCS)
+	$(CC) $(SRCS) -o $(TARGET) $(CFLAGS) $(LIBS)
+	@echo "=> Bien dich cho Windows thanh cong!"
+
+clean:
+	rm -f $(TARGET)

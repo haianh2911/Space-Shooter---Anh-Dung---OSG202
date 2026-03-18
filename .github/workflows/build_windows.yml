@@ -1,0 +1,46 @@
+name: Build for Windows
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-SDL2
+          mingw-w64-x86_64-freetype
+
+    - name: Build Game
+      run: |
+        make -f Makefile.win
+
+    - name: Package Release
+      run: |
+        mkdir -p release/SpaceShooter
+        cp space_shooter.exe release/SpaceShooter/
+        cp -r font release/SpaceShooter/ 2>/dev/null || true
+        cp de_thi*.csv release/SpaceShooter/ 2>/dev/null || true
+        
+        # Copy required DLLs from MSYS2 MINGW64 environment into the game folder
+        ldd space_shooter.exe | grep "mingw64" | awk '{print $3}' | xargs -I {} cp {} release/SpaceShooter/
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SpaceShooter_Windows
+        path: release/SpaceShooter/
