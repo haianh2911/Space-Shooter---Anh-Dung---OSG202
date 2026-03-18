@@ -400,8 +400,8 @@ void adminMenu() {
             }
         }
         else if (choice == 6) {
-            // Nhóm tính năng: Tạo file CSV mẫu
-            FILE *f = fopen("cau_hoi_mau.csv", "w");
+            // Nhóm tính năng: Tạo file CSV
+            FILE *f = fopen("cau_hoi.csv", "w");
             if (f) {
                 // Ghi bộ font UTF8 nếu cần thiết, hoặc ghi text thường, MS Excel cần BOM, nhưng ta chỉ ghi CSV chuẩn
                 // Thêm BOM (Byte Order Mark) để Excel mở tiếng Việt không bị lỗi font:
@@ -410,9 +410,9 @@ void adminMenu() {
                 fprintf(f, "Thủ đô của Việt Nam là?,Hồ Chí Minh,Hà Nội,Đà Nẵng,Hải Phòng,B\n");
                 fprintf(f, "Hành tinh lớn nhất hệ Mặt Trời?,Trái Đất,Sao Hỏa,Sao Mộc,Sao Kim,C\n");
                 fclose(f);
-                show_sdl_message("Đã tạo file mẫu 'cau_hoi_mau.csv' tại thư mục game!");
+                show_sdl_message("Đã tạo file 'cau_hoi.csv' tại thư mục game!");
             } else {
-                show_sdl_message("Lỗi: Không thể tạo file mẫu!");
+                show_sdl_message("Lỗi: Không thể tạo file!");
             }
         }
         else if (choice == 0) {

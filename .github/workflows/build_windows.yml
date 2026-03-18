@@ -34,7 +34,7 @@ jobs:
         mkdir -p release/SpaceShooter
         cp space_shooter.exe release/SpaceShooter/
         cp -r assets release/SpaceShooter/ 2>/dev/null || true
-        cp de_thi*.csv release/SpaceShooter/ 2>/dev/null || true
+        cp cau_hoi*.csv release/SpaceShooter/ 2>/dev/null || true
         
         # Copy required DLLs from MSYS2 MINGW64 environment into the game folder
         ldd space_shooter.exe | grep "mingw64" | awk '{print $3}' | xargs -I {} cp {} release/SpaceShooter/

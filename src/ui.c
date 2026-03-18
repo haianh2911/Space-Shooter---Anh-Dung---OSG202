@@ -124,7 +124,7 @@ int show_admin_menu() {
         "3. Đổi mật khẩu Admin",
         "4. Đặt lại bộ câu hỏi",
         "5. Import câu hỏi (CSV)",
-        "6. Tải file mẫu (CSV)",
+        "6. Tạo file cau_hoi.csv",
         "Q. Quay lại Menu chính"
     };
     int returns[] = {1, 2, 3, 4, 5, 6, 0};
