@@ -79,12 +79,18 @@ void showReviewScreen() {
         draw_text_centered(num_str, 70, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
 
         // Box câu hỏi
-        int box_x = 50, box_y = 100, box_w = 700, box_h = 350;
+        int box_x = 50, box_y = 100, box_w = 700;
+        
+        // Tính chiều cao chữ bằng alpha=0
+        int consumed_h = draw_text_wrapped(qBank[qIdx].question, box_x + 20, box_y + 20, box_w - 40, 24, FONT_SIZE_MEDIUM, (SDL_Color){0,0,0,0});
+        int box_h = 240 + consumed_h; 
+        if (box_h < 350) box_h = 350;
+
         draw_filled_rect(box_x, box_y, box_w, box_h, (SDL_Color){20, 20, 50, 220});
         draw_rect_outline(box_x, box_y, box_w, box_h, COLOR_CYAN);
 
         // Câu hỏi
-        draw_text(qBank[qIdx].question, box_x + 20, box_y + 20, FONT_SIZE_MEDIUM, COLOR_WHITE);
+        draw_text_wrapped(qBank[qIdx].question, box_x + 20, box_y + 20, box_w - 40, 24, FONT_SIZE_MEDIUM, COLOR_WHITE);
 
         // Đáp án
         char opt_a[120], opt_b[120], opt_c[120], opt_d[120];
@@ -100,33 +106,37 @@ void showReviewScreen() {
         char correct = game_history[current].correctAnswer;
         char user = game_history[current].userAnswer;
 
+        int opt_base_y = box_y + 40 + consumed_h;
+
         // Highlight đáp án đúng/sai
-        draw_text(opt_a, box_x + 40, box_y + 70, FONT_SIZE_SMALL,
+        draw_text(opt_a, box_x + 40, opt_base_y, FONT_SIZE_SMALL,
             correct == 'A' ? correct_color : (user == 'A' ? wrong_color : normal));
-        draw_text(opt_b, box_x + 40, box_y + 105, FONT_SIZE_SMALL,
+        draw_text(opt_b, box_x + 40, opt_base_y + 35, FONT_SIZE_SMALL,
             correct == 'B' ? correct_color : (user == 'B' ? wrong_color : normal));
-        draw_text(opt_c, box_x + 40, box_y + 140, FONT_SIZE_SMALL,
+        draw_text(opt_c, box_x + 40, opt_base_y + 70, FONT_SIZE_SMALL,
             correct == 'C' ? correct_color : (user == 'C' ? wrong_color : normal));
-        draw_text(opt_d, box_x + 40, box_y + 175, FONT_SIZE_SMALL,
+        draw_text(opt_d, box_x + 40, opt_base_y + 105, FONT_SIZE_SMALL,
             correct == 'D' ? correct_color : (user == 'D' ? wrong_color : normal));
+
+        int res_y = opt_base_y + 160;
 
         // Kết quả
         char ans_str[64];
         snprintf(ans_str, sizeof(ans_str), "Bạn chọn: %c", user);
-        draw_text(ans_str, box_x + 40, box_y + 230, FONT_SIZE_MEDIUM,
+        draw_text(ans_str, box_x + 40, res_y, FONT_SIZE_MEDIUM,
             user == correct ? COLOR_NEON_GREEN : COLOR_RED);
 
         char correct_str[64];
         snprintf(correct_str, sizeof(correct_str), "Đáp án đúng: %c", correct);
-        draw_text(correct_str, box_x + 40, box_y + 265, FONT_SIZE_MEDIUM, COLOR_NEON_GREEN);
+        draw_text(correct_str, box_x + 40, res_y + 35, FONT_SIZE_MEDIUM, COLOR_NEON_GREEN);
 
         // Trạng thái
         if (user == correct) {
-            draw_text(">> DUNG!", box_x + 400, box_y + 230, FONT_SIZE_MEDIUM, COLOR_NEON_GREEN);
+            draw_text(">> DUNG!", box_x + 400, res_y, FONT_SIZE_MEDIUM, COLOR_NEON_GREEN);
         } else if (user == '-') {
-            draw_text(">> HET GIO!", box_x + 400, box_y + 230, FONT_SIZE_MEDIUM, COLOR_RED);
+            draw_text(">> HET GIO!", box_x + 400, res_y, FONT_SIZE_MEDIUM, COLOR_RED);
         } else {
-            draw_text(">> SAI!", box_x + 400, box_y + 230, FONT_SIZE_MEDIUM, COLOR_RED);
+            draw_text(">> SAI!", box_x + 400, res_y, FONT_SIZE_MEDIUM, COLOR_RED);
         }
 
         // Navigation
@@ -263,13 +273,18 @@ void askQuestion(int *score, int *lives, int *last_q_index,
             draw_text_centered(debug_str, 75, FONT_SIZE_SMALL, COLOR_RED);
         }
 
+        // Tính chiều cao câu hỏi bằng cách render nháp
+        int qbox_x = 60, qbox_y = 100, qbox_w = 680;
+        int consumed_h = draw_text_wrapped(qBank[qIndex].question, qbox_x + 20, qbox_y + 20, qbox_w - 40, 24, FONT_SIZE_MEDIUM, (SDL_Color){0,0,0,0});
+        int qbox_h = 240 + consumed_h;
+        if (qbox_h < 350) qbox_h = 350;
+
         // Question box
-        int qbox_x = 60, qbox_y = 100, qbox_w = 680, qbox_h = 350;
         draw_filled_rect(qbox_x, qbox_y, qbox_w, qbox_h, (SDL_Color){15, 15, 40, 240});
         draw_rect_outline(qbox_x, qbox_y, qbox_w, qbox_h, COLOR_YELLOW);
 
         // Question text
-        draw_text(qBank[qIndex].question, qbox_x + 20, qbox_y + 20, FONT_SIZE_MEDIUM, COLOR_WHITE);
+        draw_text_wrapped(qBank[qIndex].question, qbox_x + 20, qbox_y + 20, qbox_w - 40, 24, FONT_SIZE_MEDIUM, COLOR_WHITE);
 
         // Options
         char opt_texts[4][120];
@@ -278,8 +293,10 @@ void askQuestion(int *score, int *lives, int *last_q_index,
         snprintf(opt_texts[2], sizeof(opt_texts[2]), "C. %s", qBank[qIndex].optionC);
         snprintf(opt_texts[3], sizeof(opt_texts[3]), "D. %s", qBank[qIndex].optionD);
 
+        int opt_base_y = qbox_y + 50 + consumed_h;
+
         for (int i = 0; i < 4; i++) {
-            int opt_y = qbox_y + 80 + i * 45;
+            int opt_y = opt_base_y + i * 45;
             SDL_Color bg = (i == selected) ?
                 (SDL_Color){40, 40, 100, 200} :
                 (SDL_Color){25, 25, 55, 200};
@@ -447,6 +464,9 @@ void playGame() {
     Uint32 last_speedup = SDL_GetTicks();
     Uint32 last_enemy_increase = SDL_GetTicks();
     bool running = true;
+    
+    bool is_paused = false;
+    Uint32 pause_start_ticks = 0;
 
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -459,12 +479,32 @@ void playGame() {
             if (e.type == SDL_QUIT) { running = false; break; }
             if (e.type == SDL_KEYDOWN) {
                 if (e.key.keysym.sym == SDLK_q) { running = false; break; }
+                if (e.key.keysym.sym == SDLK_ESCAPE) { 
+                    is_paused = !is_paused; 
+                    if (is_paused) {
+                        pause_start_ticks = SDL_GetTicks();
+                    } else {
+                        Uint32 pause_dur = SDL_GetTicks() - pause_start_ticks;
+                        last_speedup += pause_dur;
+                        last_enemy_increase += pause_dur;
+                        if (shield_active) shield_start_time += pause_dur;
+                        main_timer.start_time += (pause_dur / 1000);
+                    }
+                }
                 if (e.key.keysym.sym == SDLK_HASH ||
                     (e.key.keysym.sym == SDLK_3 && 
                      (e.key.keysym.mod & KMOD_SHIFT))) {
                     debug_mode = !debug_mode;
                 }
             }
+        }
+        
+        if (is_paused) {
+            draw_text_centered("[ PAUSED ]", SCREEN_HEIGHT / 2, FONT_SIZE_LARGE, COLOR_YELLOW);
+            draw_text_centered("[ ESC: Tiếp tục  |  Q: Thoát ]", SCREEN_HEIGHT / 2 + 40, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+            present_screen();
+            SDL_Delay(FRAME_DELAY);
+            continue;
         }
 
         // Check game over

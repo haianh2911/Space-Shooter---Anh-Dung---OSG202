@@ -10,6 +10,35 @@
 char admin_password[20] = "admin";
 
 // ==========================================
+// HÀM TÁCH DÒNG CSV HỖ TRỢ QUOTES
+// ==========================================
+int parse_csv_line(char* line, char* tokens[], int max_tokens) {
+    int count = 0;
+    bool in_quotes = false;
+    char* start = line;
+    for (char* p = line; *p; p++) {
+        if (*p == '"') {
+            in_quotes = !in_quotes;
+        } else if (*p == ',' && !in_quotes) {
+            *p = '\0';
+            if (count < max_tokens) tokens[count++] = start;
+            start = p + 1;
+        }
+    }
+    if (count < max_tokens) tokens[count++] = start;
+    
+    // Xoá dấu ngoặc kép ở hai đầu token nếu có
+    for (int i = 0; i < count; i++) {
+        int len = strlen(tokens[i]);
+        if (len >= 2 && tokens[i][0] == '"' && tokens[i][len-1] == '"') {
+            tokens[i][len-1] = '\0';
+            tokens[i]++;
+        }
+    }
+    return count;
+}
+
+// ==========================================
 // HÀM IMPORT CSV
 // ==========================================
 void importFromCSV(const char* filename) {
@@ -19,7 +48,7 @@ void importFromCSV(const char* filename) {
         return;
     }
 
-    char line[1024];
+    char line[2048]; // Tăng buffer để chứa câu hỏi dài
     int imported_count = 0;
     int dup_count = 0;
 
@@ -29,14 +58,17 @@ void importFromCSV(const char* filename) {
         line[strcspn(line, "\n")] = 0;
         line[strcspn(line, "\r")] = 0;
 
-        char *q = strtok(line, ",");
-        char *a = strtok(NULL, ",");
-        char *b = strtok(NULL, ",");
-        char *c = strtok(NULL, ",");
-        char *d = strtok(NULL, ",");
-        char *ans = strtok(NULL, ",");
+        char *tokens[10] = {0};
+        int token_count = parse_csv_line(line, tokens, 10);
 
-        if (q && a && b && c && d && ans) {
+        if (token_count >= 6) {
+            char *q = tokens[0];
+            char *a = tokens[1];
+            char *b = tokens[2];
+            char *c = tokens[3];
+            char *d = tokens[4];
+            char *ans = tokens[5];
+
             // Check for duplicate question
             bool is_duplicate = false;
             for (int i = 0; i < qCount; i++) {
@@ -51,11 +83,11 @@ void importFromCSV(const char* filename) {
                 continue;
             }
 
-            strcpy(qBank[qCount].question, q);
-            strcpy(qBank[qCount].optionA, a);
-            strcpy(qBank[qCount].optionB, b);
-            strcpy(qBank[qCount].optionC, c);
-            strcpy(qBank[qCount].optionD, d);
+            strncpy(qBank[qCount].question, q, sizeof(qBank[qCount].question) - 1);
+            strncpy(qBank[qCount].optionA, a, sizeof(qBank[qCount].optionA) - 1);
+            strncpy(qBank[qCount].optionB, b, sizeof(qBank[qCount].optionB) - 1);
+            strncpy(qBank[qCount].optionC, c, sizeof(qBank[qCount].optionC) - 1);
+            strncpy(qBank[qCount].optionD, d, sizeof(qBank[qCount].optionD) - 1);
             qBank[qCount].correctOption = ans[0];
             qCount++;
             imported_count++;
@@ -321,16 +353,23 @@ void adminMenu() {
 
                 int y = 95;
                 for (int i = start; i < end; i++) {
+                    // Tính chiều cao chữ bằng cách vẽ màu trong suốt (Alpha = 0)
+                    int consumed_h = draw_text_wrapped(qBank[i].question, 80, y + 30, 640, 25, FONT_SIZE_SMALL, (SDL_Color){0,0,0,0});
+                    int box_h = 40 + consumed_h + 65; 
+                    if (box_h < 135) box_h = 135;
+
                     // Box cho mỗi câu hỏi
                     SDL_Color box_bg = (i - start == selected_index) ? (SDL_Color){40, 40, 80, 200} : (SDL_Color){20, 20, 50, 200};
                     SDL_Color box_border = (i - start == selected_index) ? COLOR_YELLOW : COLOR_MID_GRAY;
-                    draw_filled_rect(60, y, 680, 135, box_bg);
-                    draw_rect_outline(60, y, 680, 135, box_border);
+                    draw_filled_rect(60, y, 680, box_h, box_bg);
+                    draw_rect_outline(60, y, 680, box_h, box_border);
 
                     char num_str[32];
                     snprintf(num_str, sizeof(num_str), "Câu %d:", i + 1);
                     draw_text(num_str, 80, y + 10, FONT_SIZE_SMALL, COLOR_CYAN);
-                    draw_text(qBank[i].question, 80, y + 30, FONT_SIZE_SMALL, COLOR_WHITE);
+                    
+                    // Vẽ thật sự
+                    draw_text_wrapped(qBank[i].question, 80, y + 30, 640, 25, FONT_SIZE_SMALL, COLOR_WHITE);
 
                     char opt_a[128], opt_b[128], opt_c[128], opt_d[128];
                     snprintf(opt_a, sizeof(opt_a), "A. %s", qBank[i].optionA);
@@ -338,16 +377,19 @@ void adminMenu() {
                     snprintf(opt_c, sizeof(opt_c), "C. %s", qBank[i].optionC);
                     snprintf(opt_d, sizeof(opt_d), "D. %s", qBank[i].optionD);
 
-                    draw_text(opt_a, 90, y + 55, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
-                    draw_text(opt_b, 400, y + 55, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
-                    draw_text(opt_c, 90, y + 80, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
-                    draw_text(opt_d, 400, y + 80, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+                    int opt_y1 = y + 30 + consumed_h + 10;
+                    int opt_y2 = y + 30 + consumed_h + 35;
+                    
+                    draw_text(opt_a, 90, opt_y1, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+                    draw_text(opt_b, 400, opt_y1, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+                    draw_text(opt_c, 90, opt_y2, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+                    draw_text(opt_d, 400, opt_y2, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
 
                     char ans_str[32];
                     snprintf(ans_str, sizeof(ans_str), "Đáp án đúng: %c", qBank[i].correctOption);
-                    draw_text(ans_str, 80, y + 105, FONT_SIZE_SMALL, COLOR_NEON_GREEN);
+                    draw_text(ans_str, 80, opt_y2 + 25, FONT_SIZE_SMALL, COLOR_NEON_GREEN);
 
-                    y += 150;
+                    y += box_h + 15;
                 }
 
                 draw_text_centered("[Lên/Xuống] Chọn bài  |  [Trái/Phải] Chuyển trang",
