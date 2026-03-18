@@ -33,7 +33,7 @@ jobs:
       run: |
         mkdir -p release/SpaceShooter
         cp space_shooter.exe release/SpaceShooter/
-        cp -r font release/SpaceShooter/ 2>/dev/null || true
+        cp -r assets release/SpaceShooter/ 2>/dev/null || true
         cp de_thi*.csv release/SpaceShooter/ 2>/dev/null || true
         
         # Copy required DLLs from MSYS2 MINGW64 environment into the game folder

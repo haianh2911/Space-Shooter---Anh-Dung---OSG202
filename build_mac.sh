@@ -5,7 +5,7 @@ make
 
 mkdir -p release_mac/SpaceShooter
 cp space_shooter release_mac/SpaceShooter/
-cp -r font/ release_mac/SpaceShooter/font/ 2>/dev/null || true
+cp -r assets/ release_mac/SpaceShooter/assets/ 2>/dev/null || true
 cp de_thi*.csv release_mac/SpaceShooter/ 2>/dev/null || true
 
 cd release_mac
