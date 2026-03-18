@@ -7,7 +7,12 @@
 #include <stdbool.h>
 #include <SDL.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#define close closesocket
+typedef int socklen_t;
+#else
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -29,25 +34,14 @@ typedef struct {
     int wrong;
 } PlayerResult;
 
-#ifdef _WIN32
-
-void get_local_ip(char *buffer) {
-    strcpy(buffer, "127.0.0.1");
-}
-
-void hostRoom() {
-    show_sdl_message("Chuc nang mang chua ho tro tren Windows!");
-}
-
-void joinRoom() {
-    show_sdl_message("Chuc nang mang chua ho tro tren Windows!");
-}
-
-#else
-
 // Ham lay IP
 void get_local_ip(char *buffer) {
     strcpy(buffer, "127.0.0.1");
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return;
+#endif
+
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) return;
     struct sockaddr_in serv;
@@ -69,6 +63,14 @@ void get_local_ip(char *buffer) {
 // MÁY CHỦ: TẠO PHÒNG
 // ==========================================
 void hostRoom() {
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        show_sdl_message("Loi khoi tao mang tren Windows!");
+        return;
+    }
+#endif
+
     int server_fd;
     struct sockaddr_in address;
     int opt = 1;
@@ -87,10 +89,15 @@ void hostRoom() {
     }
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) return;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
 
+#ifdef _WIN32
+    u_long mode = 1;
+    ioctlsocket(server_fd, FIONBIO, &mode);
+#else
     int flags = fcntl(server_fd, F_GETFL, 0);
     fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
+#endif
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -129,13 +136,13 @@ void hostRoom() {
         if (new_sock >= 0) {
             if (player_count < MAX_PLAYERS) {
                 char temp_name[50] = "Unknown";
-                read(new_sock, temp_name, 50);
+                recv(new_sock, temp_name, 50, 0);
                 strcpy(player_names[player_count], temp_name);
                 client_sockets[player_count] = new_sock;
                 player_count++;
 
-                send(new_sock, &qCount, sizeof(int), 0);
-                send(new_sock, qBank, sizeof(Question) * qCount, 0);
+                send(new_sock, (const char*)&qCount, sizeof(int), 0);
+                send(new_sock, (const char*)qBank, sizeof(Question) * qCount, 0);
             } else {
                 close(new_sock);
             }
@@ -184,9 +191,14 @@ void hostRoom() {
     // PHÁT LỆNH BẮT ĐẦU
     int start_signal = 1;
     for (int i = 0; i < player_count; i++) {
-        send(client_sockets[i], &start_signal, sizeof(int), 0);
+        send(client_sockets[i], (const char*)&start_signal, sizeof(int), 0);
+#ifdef _WIN32
+        u_long md = 1;
+        ioctlsocket(client_sockets[i], FIONBIO, &md);
+#else
         int f = fcntl(client_sockets[i], F_GETFL, 0);
         fcntl(client_sockets[i], F_SETFL, f | O_NONBLOCK);
+#endif
     }
 
     // TRACKING LIVE
@@ -205,7 +217,7 @@ void hostRoom() {
 
         for (int i = 0; i < player_count; i++) {
             if (!finished[i]) {
-                int bytes = recv(client_sockets[i], &results[i], sizeof(PlayerResult), 0);
+                int bytes = recv(client_sockets[i], (char*)&results[i], sizeof(PlayerResult), 0);
                 if (bytes > 0) {
                     finished[i] = true;
                     finished_count++;
@@ -313,6 +325,14 @@ cleanup_host:
 // MÁY KHÁCH: VÀO PHÒNG
 // ==========================================
 void joinRoom() {
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+        show_sdl_message("Loi khoi tao mang tren Windows!");
+        return;
+    }
+#endif
+
     int sock = 0;
     struct sockaddr_in serv_addr;
     char ip_address[20];
@@ -340,9 +360,9 @@ void joinRoom() {
     send(sock, player_name, 50, 0);
 
     int incoming_count;
-    read(sock, &incoming_count, sizeof(int));
+    recv(sock, (char*)&incoming_count, sizeof(int), 0);
     Question incoming_bank[MAX_QUESTIONS];
-    read(sock, incoming_bank, sizeof(Question) * incoming_count);
+    recv(sock, (char*)incoming_bank, sizeof(Question) * incoming_count, 0);
 
     qCount = incoming_count;
     memcpy(qBank, incoming_bank, sizeof(Question) * incoming_count);
@@ -351,7 +371,7 @@ void joinRoom() {
     show_sdl_message("Đã vào phòng! Chờ chủ phòng bắt đầu...");
 
     int start_signal = 0;
-    read(sock, &start_signal, sizeof(int));
+    recv(sock, (char*)&start_signal, sizeof(int), 0);
 
     playGame();
 
@@ -361,10 +381,8 @@ void joinRoom() {
     res.score = net_score;
     res.correct = net_correct;
     res.wrong = net_wrong;
-    send(sock, &res, sizeof(PlayerResult), 0);
+    send(sock, (const char*)&res, sizeof(PlayerResult), 0);
 
     showGameOverScreen();
     close(sock);
 }
-
-#endif

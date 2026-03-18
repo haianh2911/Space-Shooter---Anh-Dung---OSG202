@@ -12,7 +12,7 @@ FT_LIBS = $(shell pkg-config --libs freetype2)
 # Tổng hợp CFLAGS và LIBS
 CFLAGS = -Wall $(SDL_CFLAGS) $(FT_CFLAGS)
 # -mwindows để ẩn cửa sổ console (Cmd) khi chạy game
-LIBS = $(SDL_LIBS) $(FT_LIBS) -lm -mwindows
+LIBS = $(SDL_LIBS) $(FT_LIBS) -lm -lws2_32 -mwindows
 
 SRCS = main.c utils.c data.c admin.c player.c story.c ui.c timer.c network.c graphics.c
 
