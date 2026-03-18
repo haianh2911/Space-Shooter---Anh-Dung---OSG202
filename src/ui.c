@@ -123,7 +123,7 @@ int show_admin_menu() {
         "2. Xem danh sách câu hỏi",
         "3. Đổi mật khẩu Admin",
         "4. Đặt lại bộ câu hỏi",
-        "5. Import đề thi (CSV)",
+        "5. Import câu hỏi (CSV)",
         "6. Tải file mẫu (CSV)",
         "Q. Quay lại Menu chính"
     };

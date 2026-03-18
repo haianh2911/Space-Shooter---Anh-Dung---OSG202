@@ -554,8 +554,14 @@ bool get_sdl_input_string(const char *prompt, char *out_str, int max_len, bool i
         update_and_draw_stars();
         draw_overlay();
         
-        draw_filled_rect(100, 200, 600, 150, (SDL_Color){20, 20, 50, 255});
-        draw_rect_outline(100, 200, 600, 150, COLOR_CYAN);
+        int prompt_w = get_text_width(prompt, FONT_SIZE_MEDIUM);
+        int box_w = prompt_w + 60;
+        if (box_w < 600) box_w = 600;
+        if (box_w > SCREEN_WIDTH - 40) box_w = SCREEN_WIDTH - 40;
+        int box_x = (SCREEN_WIDTH - box_w) / 2;
+        
+        draw_filled_rect(box_x, 200, box_w, 150, (SDL_Color){20, 20, 50, 255});
+        draw_rect_outline(box_x, 200, box_w, 150, COLOR_CYAN);
         
         draw_text_centered(prompt, 230, FONT_SIZE_MEDIUM, COLOR_YELLOW);
         

@@ -15,7 +15,7 @@ char admin_password[20] = "admin";
 void importFromCSV(const char* filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        show_sdl_message("Lỗi: Không tìm thấy file de_thi.csv!");
+        show_sdl_message("Lỗi: Không tìm thấy file cau_hoi.csv!");
         return;
     }
 
@@ -391,9 +391,9 @@ void adminMenu() {
         else if (choice == 5) {
             // Import CSV
             char confirm[10];
-            if (get_sdl_input_string("File 'de_thi.csv'. Nhập 'o' để nạp (Q: Thoát):", confirm, 9, false, true)) {
+            if (get_sdl_input_string("File 'cau_hoi.csv'. Nhan 'o' de nap (Q: Thoat):", confirm, 9, false, true)) {
                 if (strcmp(confirm, "o") == 0) {
-                    importFromCSV("de_thi.csv");
+                    importFromCSV("cau_hoi.csv");
                 } else {
                     show_sdl_message("Đã hủy nạp dữ liệu.");
                 }
@@ -401,7 +401,7 @@ void adminMenu() {
         }
         else if (choice == 6) {
             // Nhóm tính năng: Tạo file CSV mẫu
-            FILE *f = fopen("de_thi_mau.csv", "w");
+            FILE *f = fopen("cau_hoi_mau.csv", "w");
             if (f) {
                 // Ghi bộ font UTF8 nếu cần thiết, hoặc ghi text thường, MS Excel cần BOM, nhưng ta chỉ ghi CSV chuẩn
                 // Thêm BOM (Byte Order Mark) để Excel mở tiếng Việt không bị lỗi font:
@@ -410,7 +410,7 @@ void adminMenu() {
                 fprintf(f, "Thủ đô của Việt Nam là?,Hồ Chí Minh,Hà Nội,Đà Nẵng,Hải Phòng,B\n");
                 fprintf(f, "Hành tinh lớn nhất hệ Mặt Trời?,Trái Đất,Sao Hỏa,Sao Mộc,Sao Kim,C\n");
                 fclose(f);
-                show_sdl_message("Đã tạo file mẫu 'de_thi_mau.csv' tại thư mục game!");
+                show_sdl_message("Đã tạo file mẫu 'cau_hoi_mau.csv' tại thư mục game!");
             } else {
                 show_sdl_message("Lỗi: Không thể tạo file mẫu!");
             }
