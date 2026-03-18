@@ -11,11 +11,11 @@ SDL_LIBS = $(shell sdl2-config --libs)
 FT_CFLAGS = $(shell pkg-config --cflags freetype2)
 FT_LIBS = $(shell pkg-config --libs freetype2)
 
-CFLAGS = -Wall $(SDL_CFLAGS) $(FT_CFLAGS)
+CFLAGS = -Wall $(SDL_CFLAGS) $(FT_CFLAGS) -Iinclude
 LIBS = $(SDL_LIBS) $(FT_LIBS) -lm
 
 # Danh sach toan bo cac file nguon
-SRCS = main.c utils.c data.c admin.c player.c story.c ui.c timer.c network.c graphics.c
+SRCS = src/main.c src/utils.c src/data.c src/admin.c src/player.c src/story.c src/ui.c src/timer.c src/network.c src/graphics.c
 
 # Mac dinh khi chi go 'make'
 all: $(TARGET)
