@@ -4,13 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <SDL.h>
+
+#ifndef _WIN32
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <fcntl.h>
-#include <stdbool.h>
-#include <SDL.h>
-#include <SDL.h>
+#endif
 
 #define PORT 8888
 #define MAX_PLAYERS 10
@@ -26,6 +28,22 @@ typedef struct {
     int correct;
     int wrong;
 } PlayerResult;
+
+#ifdef _WIN32
+
+void get_local_ip(char *buffer) {
+    strcpy(buffer, "127.0.0.1");
+}
+
+void hostRoom() {
+    show_sdl_message("Chuc nang mang chua ho tro tren Windows!");
+}
+
+void joinRoom() {
+    show_sdl_message("Chuc nang mang chua ho tro tren Windows!");
+}
+
+#else
 
 // Ham lay IP
 void get_local_ip(char *buffer) {
@@ -348,3 +366,5 @@ void joinRoom() {
     showGameOverScreen();
     close(sock);
 }
+
+#endif
