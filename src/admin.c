@@ -7,7 +7,32 @@
 #include <stdbool.h>
 #include <SDL.h>
 
+#define ADMIN_PASS_FILE "admin_pass.bin"
+#define CRYPTO_KEY 0x5A
+
 char admin_password[20] = "admin";
+
+void load_admin_password() {
+    FILE *f = fopen(ADMIN_PASS_FILE, "rb");
+    if (f) {
+        fread(admin_password, 1, 20, f);
+        fclose(f);
+        for (int i = 0; i < 20; i++) admin_password[i] ^= CRYPTO_KEY;
+    } else {
+        strcpy(admin_password, "admin");
+    }
+}
+
+void save_admin_password() {
+    FILE *f = fopen(ADMIN_PASS_FILE, "wb");
+    if (f) {
+        char enc_pass[20] = {0};
+        strncpy(enc_pass, admin_password, 19);
+        for (int i = 0; i < 20; i++) enc_pass[i] ^= CRYPTO_KEY;
+        fwrite(enc_pass, 1, 20, f);
+        fclose(f);
+    }
+}
 
 // ==========================================
 // HÀM TÁCH DÒNG CSV HỖ TRỢ QUOTES
@@ -249,6 +274,7 @@ void addOrEditQuestion(int index) {
 // ADMIN MENU
 // ==========================================
 void adminMenu() {
+    load_admin_password();
     // Nhập mật khẩu
     char input_pass[20];
     bool ok = get_sdl_input_string("NHẬP MẬT KHẨU ADMIN (Q: Thoát):", input_pass, 20, true, true);
@@ -412,6 +438,7 @@ void adminMenu() {
 
             if (strcmp(new_pass, confirm_pass) == 0 && strlen(new_pass) > 0) {
                 strcpy(admin_password, new_pass);
+                save_admin_password();
                 show_sdl_message("Đổi mật khẩu thành công!");
             } else {
                 show_sdl_message("Mật khẩu không khớp hoặc để trống!");

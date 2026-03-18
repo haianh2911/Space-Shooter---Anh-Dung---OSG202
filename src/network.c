@@ -142,7 +142,13 @@ void hostRoom() {
                 player_count++;
 
                 send(new_sock, (const char*)&qCount, sizeof(int), 0);
-                send(new_sock, (const char*)qBank, sizeof(Question) * qCount, 0);
+                
+                Question encrypted_bank[MAX_QUESTIONS];
+                memcpy(encrypted_bank, qBank, sizeof(Question) * qCount);
+                for (size_t k = 0; k < sizeof(Question) * qCount; k++) {
+                    ((char*)encrypted_bank)[k] ^= 0x5A;
+                }
+                send(new_sock, (const char*)encrypted_bank, sizeof(Question) * qCount, 0);
             } else {
                 close(new_sock);
             }
@@ -363,6 +369,11 @@ void joinRoom() {
     recv(sock, (char*)&incoming_count, sizeof(int), 0);
     Question incoming_bank[MAX_QUESTIONS];
     recv(sock, (char*)incoming_bank, sizeof(Question) * incoming_count, 0);
+
+    // Giải mã XOR cho toàn bộ dữ liệu câu hỏi nhận được
+    for (size_t k = 0; k < sizeof(Question) * incoming_count; k++) {
+        ((char*)incoming_bank)[k] ^= 0x5A;
+    }
 
     qCount = incoming_count;
     memcpy(qBank, incoming_bank, sizeof(Question) * incoming_count);
