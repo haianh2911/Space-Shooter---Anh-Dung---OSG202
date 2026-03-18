@@ -9,7 +9,7 @@
 extern void hostRoom();
 extern void joinRoom();
 
-int main() {
+int main(int argc, char *argv[]) {
     // Khởi tạo đồ họa SDL2
     if (init_graphics() < 0) {
         fprintf(stderr, "Khong the khoi tao do hoa!\n");
