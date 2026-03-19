@@ -58,6 +58,21 @@ Dự án sử dụng ngôn ngữ **C** và thư viện **SDL2**, **SDL2_ttf**. B
    make -f Makefile.win
    ```
 
+## 👑 Chế độ Quản trị viên (Admin)
+
+Trò chơi tích hợp sẵn một hệ thống phân quyền (role-based) thông qua màn hình đăng nhập. Khi bạn truy cập với tài khoản có quyền Admin, menu hệ thống sẽ mở khóa thêm chức năng **Quản lý Câu hỏi**.
+
+- **Giao diện Admin UI:** Cung cấp trải nghiệm nhập liệu trực quan trực tiếp bên trong cửa sổ trò chơi (không cần màn hình console ngoài). Hỗ trợ tiếng Việt.
+- **Thêm mới và Chỉnh sửa:** Admin có thể tạo ra các câu hỏi trắc nghiệm mới, đưa ra 4 đáp án A/B/C/D và chỉ định đáp án đúng.
+- **Cập nhật dữ liệu tức thời:** Dữ liệu câu hỏi mới sẽ được ghi nhận và đưa vào kho "Khóa Tri Thức" cho các lượt chơi sau.
+
+## 🌐 Hệ thống Server - Client (Networking)
+
+Dự án hỗ trợ kiến trúc **Server - Client** để đáp ứng các tính năng trực tuyến nhiều người chơi hoặc lưu trữ tập trung:
+- **Giao tiếp Socket:** Các luồng dữ liệu mạng được quản lý độc lập tại `network.c` và `server.c`.
+- **Đồng bộ Dữ liệu:** Cho phép Client (trò chơi) gửi điểm số lên Server lưu trữ bảng xếp hạng, hoặc Server gửi bộ câu hỏi (Question Bank) đã được cập nhật về cho Client.
+- **Xử lý đa luồng (Multi-threading):** Đủ khả năng quản lý trạng thái kết nối từ nhiều người chơi cùng một lúc (nếu kích hoạt server).
+
 ## 📂 Cấu trúc dự án
 
 - `src/` - Chứa toàn bộ mã nguồn trò chơi.
