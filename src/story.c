@@ -177,7 +177,7 @@ void showInstructions() {
         int y = ly + 15;
         draw_text(">> Điều khiển:", lx + 20, y, FONT_SIZE_SMALL, COLOR_CYAN);
         y += 22;
-        draw_text("   W/A/S/D hoặc Mũi tên", lx + 20, y, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
+        draw_text("   Các phím Mũi tên", lx + 20, y, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
         y += 35;
 
         draw_text(">> Luật chơi:", lx + 20, y, FONT_SIZE_SMALL, COLOR_CYAN);

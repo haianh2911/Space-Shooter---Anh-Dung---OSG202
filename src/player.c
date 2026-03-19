@@ -54,10 +54,10 @@ void showReviewScreen() {
             if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
                     case SDLK_q: case SDLK_ESCAPE: done = true; break;
-                    case SDLK_LEFT: case SDLK_a:
+                    case SDLK_LEFT:
                         if (current > 0) current--;
                         break;
-                    case SDLK_RIGHT: case SDLK_d:
+                    case SDLK_RIGHT:
                         if (current < game_history_count - 1) current++;
                         break;
                     default: break;
@@ -140,7 +140,7 @@ void showReviewScreen() {
         }
 
         // Navigation
-        draw_text_centered("[A/Left] Truoc  |  [D/Right] Sau  |  [Q] Thoat",
+        draw_text_centered("[Left] Truoc  |  [Right] Sau  |  [Q] Thoat",
                           SCREEN_HEIGHT - 40, FONT_SIZE_SMALL, COLOR_DIM_WHITE);
 
         present_screen();
@@ -513,19 +513,19 @@ void playGame() {
 
         // Input: di chuyển liên tục
         SDL_PumpEvents();
-        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A]) {
+        if (keys[SDL_SCANCODE_LEFT]) {
             ship_x -= SHIP_SPEED;
             if (ship_x < 25) ship_x = 25;
         }
-        if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D]) {
+        if (keys[SDL_SCANCODE_RIGHT]) {
             ship_x += SHIP_SPEED;
             if (ship_x > SCREEN_WIDTH - 25) ship_x = SCREEN_WIDTH - 25;
         }
-        if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W]) {
+        if (keys[SDL_SCANCODE_UP]) {
             ship_y -= SHIP_SPEED;
             if (ship_y < 70) ship_y = 70;
         }
-        if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S]) {
+        if (keys[SDL_SCANCODE_DOWN]) {
             ship_y += SHIP_SPEED;
             if (ship_y > SCREEN_HEIGHT - 30) ship_y = SCREEN_HEIGHT - 30;
         }
