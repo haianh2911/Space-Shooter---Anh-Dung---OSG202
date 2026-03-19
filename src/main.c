@@ -24,8 +24,12 @@ int main(int argc, char *argv[]) {
         int choice = show_main_menu();
 
         if (choice == 1) {
-            playGame();
-            showGameOverScreen();
+            if (qCount <= 0) {
+                show_sdl_message("Ngan hang cau hoi trong! Vui long them cau hoi truoc khi choi.");
+            } else {
+                playGame();
+                showGameOverScreen();
+            }
         }
         else if (choice == 2) {
             hostRoom();
