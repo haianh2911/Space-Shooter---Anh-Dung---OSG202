@@ -1,4 +1,4 @@
-# Space Shooter - Khóa Tri Thức
+# Space Shooter - 
 
 Một tựa game bắn súng không gian 2D với yếu tố giải đố, được lập trình bằng ngôn ngữ C và thư viện SDL2. Người chơi sẽ điều khiển phi thuyền thám hiểm, vừa né tránh hoặc tiêu diệt kẻ thù, vừa giải quyết các câu hỏi trắc nghiệm để thu thập tài nguyên cần thiết cho Trái Đất.
 
